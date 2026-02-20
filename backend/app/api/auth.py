@@ -27,16 +27,23 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     
     # Create new user
     from app.models.user import User
-    new_user = User(
-        username=user_data.username,
-        email=user_data.email,
-        full_name=user_data.full_name,
-        role=user_data.role,
-        hashed_password=get_password_hash(user_data.password)
-    )
-    
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    
-    return UserResponse.model_validate(new_user)
+    try:
+        new_user = User(
+            username=user_data.username,
+            email=user_data.email,
+            full_name=user_data.full_name,
+            role=user_data.role,
+            hashed_password=get_password_hash(user_data.password)
+        )
+        
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        
+        return UserResponse.model_validate(new_user)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error creating user: {str(e)}"
+        )
