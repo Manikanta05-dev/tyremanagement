@@ -2,27 +2,42 @@ import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
+console.log('API Base URL:', API_URL)
+
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // 30 second timeout for mobile networks
 })
 
 api.interceptors.request.use(
   (config) => {
+    console.log('API Request:', config.method?.toUpperCase(), config.url)
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error('Request error:', error)
+    return Promise.reject(error)
+  }
 )
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('API Response:', response.status, response.config.url)
+    return response
+  },
   (error) => {
+    console.error('Response error:', error.message)
+    if (error.response) {
+      console.error('Error status:', error.response.status)
+      console.error('Error data:', error.response.data)
+    }
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')

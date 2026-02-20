@@ -14,7 +14,9 @@ const Login = () => {
     setLoading(true)
 
     try {
+      console.log('Attempting login with:', { username: formData.username })
       const response = await authAPI.login(formData)
+      console.log('Login response:', response)
       const { access_token, user } = response.data
       
       setToken(access_token)
@@ -23,6 +25,8 @@ const Login = () => {
       toast.success('Login successful!')
       navigate('/dashboard')
     } catch (error) {
+      console.error('Login error:', error)
+      console.error('Error response:', error.response)
       toast.error(error.response?.data?.detail || 'Login failed')
     } finally {
       setLoading(false)
