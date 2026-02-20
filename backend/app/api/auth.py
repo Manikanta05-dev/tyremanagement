@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.schemas.user import UserLogin, Token
+from app.schemas.user import UserLogin, Token, UserCreate, UserResponse
 from app.services.auth_service import AuthService
+from app.repositories.user_repository import UserRepository
+from app.core.security import get_password_hash
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -10,3 +12,31 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 def login(credentials: UserLogin, db: Session = Depends(get_db)):
     auth_service = AuthService(db)
     return auth_service.login(credentials)
+
+@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def register(user_data: UserCreate, db: Session = Depends(get_db)):
+    user_repo = UserRepository(db)
+    
+    # Check if username already exists
+    existing_user = user_repo.get_by_username(user_data.username)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered"
+        )
+    
+    # Create new user
+    from app.models.user import User
+    new_user = User(
+        username=user_data.username,
+        email=user_data.email,
+        full_name=user_data.full_name,
+        role=user_data.role,
+        hashed_password=get_password_hash(user_data.password)
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return UserResponse.model_validate(new_user)
