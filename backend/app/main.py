@@ -21,22 +21,10 @@ app = FastAPI(
     version="2.0.0"
 )
 
-origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
-
-# Add Vercel domains
-vercel_origins = [
-    "https://tyremanagement-git-main-manikanta05-devs-projects.vercel.app",
-    "https://*.vercel.app",
-    "http://localhost:3000",
-    "http://localhost:5173"
-]
-
-# Combine origins
-all_origins = vercel_origins + [o for o in origins if o and o.strip()]
-
+# CORS middleware - Allow all origins for now
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=all_origins if all_origins else ["*"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
