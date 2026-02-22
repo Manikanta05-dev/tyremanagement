@@ -1,39 +1,41 @@
 """
-Initialize database with default admin user
-Run this script after creating the database and running migrations
+Initialize database with admin user on startup
 """
-from sqlalchemy.orm import Session
-from app.core.database import SessionLocal, engine, Base
-from app.models import User, UserRole
-from app.core.security import get_password_hash
+from app.core.database import SessionLocal
+from app.models.user import User, UserRole
+from passlib.context import CryptContext
 
-def init_db():
-    # Create tables
-    Base.metadata.create_all(bind=engine)
-    
+def init_admin():
     db = SessionLocal()
     try:
-        # Check if admin user exists
-        admin = db.query(User).filter(User.username == "admin").first()
-        if not admin:
-            admin = User(
-                username="admin",
-                email="admin@tireshop.com",
-                hashed_password=get_password_hash("admin123"),
-                full_name="Admin User",
-                role=UserRole.ADMIN
-            )
-            db.add(admin)
-            db.commit()
-            print("✓ Admin user created successfully")
-            print("  Username: admin")
-            print("  Password: admin123")
-        else:
-            print("✓ Admin user already exists")
+        # Check if admin already exists
+        existing_admin = db.query(User).filter(User.username == "admin").first()
+        if existing_admin:
+            print("✅ Admin user already exists")
+            return
+        
+        # Create admin user
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        hashed = pwd_context.hash("admin")
+        
+        admin_user = User(
+            username="admin",
+            email="admin@example.com",
+            full_name="Admin User",
+            role=UserRole.ADMIN,
+            hashed_password=hashed
+        )
+        
+        db.add(admin_user)
+        db.commit()
+        
+        print("✅ Admin user created: username=admin, password=admin")
+        
+    except Exception as e:
+        print(f"⚠️ Could not create admin user: {e}")
+        db.rollback()
     finally:
         db.close()
 
 if __name__ == "__main__":
-    print("Initializing database...")
-    init_db()
-    print("Database initialization complete!")
+    init_admin()

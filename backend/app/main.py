@@ -8,6 +8,13 @@ from app.models import User, Supplier, TireInventory, Sales, SalesItem, Purchase
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
+# Initialize admin user
+try:
+    from init_db import init_admin
+    init_admin()
+except Exception as e:
+    print(f"Warning: Could not initialize admin user: {e}")
+
 app = FastAPI(
     title="Tire Shop Management API",
     description="API for managing tire inventory, sales, purchases, and invoicing",
