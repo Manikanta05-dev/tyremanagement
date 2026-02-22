@@ -5,7 +5,6 @@ Run this once after deployment to create the first admin user
 import sys
 from app.core.database import SessionLocal
 from app.models.user import User, UserRole
-from app.core.security import get_password_hash
 
 def create_admin():
     db = SessionLocal()
@@ -16,13 +15,20 @@ def create_admin():
             print("❌ Admin user already exists!")
             return
         
-        # Create admin user
+        # Create admin user with simple password hashing
+        from passlib.context import CryptContext
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        
+        # Use short password to avoid bcrypt 72 byte limit
+        password = "admin"
+        hashed = pwd_context.hash(password)
+        
         admin_user = User(
             username="admin",
             email="admin@example.com",
             full_name="Admin User",
             role=UserRole.ADMIN,
-            hashed_password=get_password_hash("admin123")
+            hashed_password=hashed
         )
         
         db.add(admin_user)
@@ -31,7 +37,7 @@ def create_admin():
         
         print("✅ Admin user created successfully!")
         print(f"   Username: admin")
-        print(f"   Password: admin123")
+        print(f"   Password: admin")
         print(f"   Role: {admin_user.role}")
         
     except Exception as e:
