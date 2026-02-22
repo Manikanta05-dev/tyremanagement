@@ -25,6 +25,9 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Username already registered"
         )
     
+    # Truncate password to 72 bytes for bcrypt
+    password = user_data.password[:72] if len(user_data.password) > 72 else user_data.password
+    
     # Create new user
     from app.models.user import User
     try:
@@ -33,7 +36,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
             email=user_data.email,
             full_name=user_data.full_name,
             role=user_data.role,
-            hashed_password=get_password_hash(user_data.password)
+            hashed_password=get_password_hash(password)
         )
         
         db.add(new_user)
