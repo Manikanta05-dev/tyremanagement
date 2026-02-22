@@ -1,5 +1,4 @@
 services:
-  # Backend API Service
   - type: web
     name: tire-shop-backend
     env: docker
@@ -8,16 +7,17 @@ services:
     healthCheckPath: /health
     envVars:
       - key: SECRET_KEY
-        generateValue: true
+        value: manikanta_tire_secret_123
+
       - key: DATABASE_URL
         fromDatabase:
           name: tire-shop-db
           property: connectionString
+
       - key: ALLOWED_ORIGINS
-        value: http://localhost:3000,https://*.vercel.app
+        value: https://your-frontend-name.vercel.app
 
 databases:
-  # PostgreSQL Database
   - name: tire-shop-db
     plan: free
     databaseName: tireshop
