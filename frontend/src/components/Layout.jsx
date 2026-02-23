@@ -1,10 +1,8 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { logout, getUser } from '../utils/auth'
 
 const Layout = () => {
   const location = useLocation()
-  const user = getUser()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const mainNavItems = [
@@ -66,18 +64,13 @@ const Layout = () => {
         <div className="sidebar-footer">
           <div className="user-info">
             <div className="user-avatar">
-              {(user?.full_name || user?.username || 'U').charAt(0).toUpperCase()}
+              T
             </div>
             <div className="user-details">
-              <p className="user-name">{user?.full_name || user?.username}</p>
-              <p className="user-role">{user?.role}</p>
+              <p className="user-name">Tire Shop</p>
+              <p className="user-role">Admin</p>
             </div>
           </div>
-          <button onClick={logout} className="logout-btn" title="Logout">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-            </svg>
-          </button>
         </div>
       </aside>
 
@@ -109,26 +102,11 @@ const Layout = () => {
           <span className="brand-icon">🚗</span>
           <h1>Tire Shop</h1>
         </div>
-        <button 
-          className="topbar-user"
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            logout()
-          }}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            touchAction: 'manipulation',
-            padding: 0
-          }}
-          title="Logout"
-        >
+        <div className="topbar-user">
           <div className="user-avatar-small">
-            {(user?.full_name || user?.username || 'U').charAt(0).toUpperCase()}
+            T
           </div>
-        </button>
+        </div>
       </header>
 
       {/* Overlay for mobile sidebar */}
