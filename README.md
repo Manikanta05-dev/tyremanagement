@@ -1,54 +1,31 @@
 # Tire Shop Management System
 
-A full-stack inventory management system for tire shops with sales tracking, purchase management, and GST invoice generation.
+Full-stack inventory management system for tire shops.
 
 ## Tech Stack
-
-**Frontend:** React + Vite  
-**Backend:** FastAPI + Python  
-**Database:** PostgreSQL  
-
-## Features
-
-- 📦 Inventory Management
-- 💰 Sales Tracking
-- 🛒 Purchase Orders
-- 📄 GST Invoice Generation
-- 📊 Dashboard & Reports
-- 👥 User Authentication
-- 📱 Mobile Responsive
+- Frontend: React + Vite
+- Backend: FastAPI + Python
+- Database: PostgreSQL
 
 ## Local Development
 
-### Prerequisites
-- Python 3.12+
-- Node.js 18+
-- PostgreSQL 14+
-
-### Backend Setup
+### Backend
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate  # Windows
+venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-### Frontend Setup
+### Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-## Deployment
-
-**Frontend:** Vercel  
-**Backend:** Render  
-**Database:** Render PostgreSQL  
-
-See deployment instructions below.
+Login: admin / admin
 
 ## License
-
 MIT
