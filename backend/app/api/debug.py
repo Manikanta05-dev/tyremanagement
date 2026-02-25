@@ -125,3 +125,27 @@ def connection_info():
             "status": "error",
             "message": str(e)
         }
+
+@router.get("/cors_config")
+def cors_configuration():
+    """Get CORS configuration for debugging"""
+    try:
+        import os
+        
+        # Read ALLOWED_ORIGINS
+        allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "")
+        allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",") if origin.strip()]
+        
+        return {
+            "status": "success",
+            "raw_value": allowed_origins_str,
+            "parsed_origins": allowed_origins,
+            "total_origins": len(allowed_origins),
+            "has_whitespace": any(" " in origin for origin in allowed_origins_str.split(",")),
+            "environment": os.getenv("ENVIRONMENT", "development")
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }

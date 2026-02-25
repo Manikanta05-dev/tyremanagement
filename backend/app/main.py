@@ -17,7 +17,10 @@ allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http:/
 allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",") if origin.strip()]
 
 # Log CORS origins for debugging
-print(f"🌐 CORS allowed origins: {allowed_origins}")
+print(f"🌐 CORS Configuration:")
+print(f"   Raw ALLOWED_ORIGINS: {repr(allowed_origins_str)}")
+print(f"   Parsed origins: {allowed_origins}")
+print(f"   Total origins: {len(allowed_origins)}")
 
 app.add_middleware(
     CORSMiddleware,
