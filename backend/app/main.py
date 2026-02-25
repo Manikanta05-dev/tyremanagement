@@ -24,16 +24,35 @@ app.add_middleware(
 
 # Startup event - Create tables
 @app.on_event("startup")
-async def startup_event():
-    print("🚀 Starting up...")
-    print(f"📊 Database URL: {settings.DATABASE_URL[:50]}...")
+def startup_event():
+    """Create database tables on application startup"""
+    print("🚀 Starting up Tire Shop Management API...")
+    print(f"📊 Database: {settings.DATABASE_URL.split('@')[1] if '@' in settings.DATABASE_URL else 'local'}")
+    
+    # Import all models to ensure they're registered with Base
+    from app.models import (
+        User, UserRole, 
+        Supplier, 
+        TireInventory, TireType,
+        Sales, SalesItem, PaymentMode,
+        Purchase, PurchaseItem, PaymentStatus
+    )
     
     # Create all tables
     try:
+        print("📝 Creating database tables...")
         Base.metadata.create_all(bind=engine)
-        print("✅ Database tables created successfully")
+        print("✅ Database tables created successfully!")
+        
+        # List created tables
+        tables = Base.metadata.tables.keys()
+        print(f"📋 Tables: {', '.join(tables)}")
+        
     except Exception as e:
-        print(f"⚠️ Error creating tables: {e}")
+        print(f"❌ Error creating tables: {e}")
+        print(f"⚠️ Application will continue but database operations may fail")
+        import traceback
+        traceback.print_exc()
 
 # Include routers
 app.include_router(auth.router)
@@ -64,3 +83,22 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "version": "2.0.0"}
+
+@app.get("/db-status")
+def database_status():
+    """Check database connection and tables"""
+    try:
+        from sqlalchemy import inspect
+        inspector = inspect(engine)
+        tables = inspector.get_table_names()
+        
+        return {
+            "status": "connected",
+            "tables": tables,
+            "table_count": len(tables)
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e)
+        }

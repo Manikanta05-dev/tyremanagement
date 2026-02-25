@@ -14,12 +14,16 @@ if database_url and database_url.startswith("postgresql://"):
         # Add SSL mode if not already present
         if "sslmode" not in database_url:
             database_url = database_url + ("&" if "?" in database_url else "?") + "sslmode=require"
+            print("🔒 Added SSL mode to database connection")
+
+print(f"🔌 Connecting to database: {database_url.split('@')[1] if '@' in database_url else 'local'}")
 
 # Create engine with SSL support
 engine = create_engine(
     database_url,
     pool_pre_ping=True,  # Verify connections before using
     pool_recycle=300,    # Recycle connections after 5 minutes
+    echo=False,          # Set to True for SQL query logging
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
