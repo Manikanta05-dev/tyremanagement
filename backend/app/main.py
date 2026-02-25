@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import inventory, sales, dashboard, reports, purchase, invoice, profit, debug
+from app.api import auth, inventory, sales, dashboard, reports, invoice, profit, debug
 from app.core.database import engine, Base
 from app.core.config import settings
 from app.models import User, Supplier, TireInventory, Sales, SalesItem, Purchase, PurchaseItem
@@ -90,11 +90,11 @@ def startup_event():
         traceback.print_exc()
 
 # Include routers
+app.include_router(auth.router)
 app.include_router(inventory.router)
 app.include_router(sales.router)
 app.include_router(dashboard.router)
 app.include_router(reports.router)
-app.include_router(purchase.router)
 app.include_router(invoice.router)
 app.include_router(profit.router)
 app.include_router(debug.router)
