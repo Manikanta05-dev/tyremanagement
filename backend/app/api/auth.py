@@ -5,6 +5,7 @@ from app.schemas.user import UserLogin, Token, UserCreate, UserResponse
 from app.services.auth_service import AuthService
 from app.repositories.user_repository import UserRepository
 from app.core.security import get_password_hash
+from app.models.user import User
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -38,7 +39,6 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     password = user_data.password[:72] if len(user_data.password) > 72 else user_data.password
     
     # Create new user
-    from app.models.user import User
     try:
         new_user = User(
             username=user_data.username,
