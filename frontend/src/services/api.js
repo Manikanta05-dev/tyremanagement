@@ -15,10 +15,6 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     console.log('API Request:', config.method?.toUpperCase(), config.url)
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
     return config
   },
   (error) => {
@@ -38,18 +34,9 @@ api.interceptors.response.use(
       console.error('Error status:', error.response.status)
       console.error('Error data:', error.response.data)
     }
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
-    }
     return Promise.reject(error)
   }
 )
-
-export const authAPI = {
-  login: (credentials) => api.post('/auth/login', credentials),
-}
 
 export const inventoryAPI = {
   getAll: (params) => api.get('/inventory/all', { params }),
