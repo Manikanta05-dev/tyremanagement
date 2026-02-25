@@ -35,17 +35,18 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
                 detail="Email already registered"
             )
     
-    # Truncate password to 72 bytes for bcrypt
-    password = user_data.password[:72] if len(user_data.password) > 72 else user_data.password
+    # Hash password ONCE (truncation handled inside get_password_hash)
+    plain_password = user_data.password
+    hashed_pw = get_password_hash(plain_password)
     
-    # Create new user
+    # Create new user with pre-hashed password
     try:
         new_user = User(
             username=user_data.username,
             email=user_data.email,
             full_name=user_data.full_name,
             role=user_data.role,
-            hashed_password=get_password_hash(password)
+            hashed_password=hashed_pw  # Already hashed, no further hashing
         )
         
         db.add(new_user)
