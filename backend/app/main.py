@@ -13,10 +13,15 @@ app = FastAPI(
 )
 
 # CORS middleware - Read from environment
-allowed_origins = settings.ALLOWED_ORIGINS.split(",")
+allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
+allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",") if origin.strip()]
+
+# Log CORS origins for debugging
+print(f"🌐 CORS allowed origins: {allowed_origins}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins + ["*"],  # Allow configured origins + wildcard for development
+    allow_origins=allowed_origins,  # Only use configured origins (no wildcard with credentials)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

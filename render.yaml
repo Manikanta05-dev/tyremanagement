@@ -18,7 +18,7 @@ services:
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: 1440
       - key: ALLOWED_ORIGINS
-        value: http://localhost:3000,http://localhost:5173,https://*.vercel.app
+        value: http://localhost:3000,http://localhost:5173,https://tyremanagement.vercel.app
       - key: ENVIRONMENT
         value: production
 
