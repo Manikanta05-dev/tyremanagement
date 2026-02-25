@@ -3,17 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import auth, inventory, sales, dashboard, reports, purchase, invoice, profit
 from app.core.database import engine, Base
+from app.core.config import settings
 from app.models import User, Supplier, TireInventory, Sales, SalesItem, Purchase, PurchaseItem
-
-# Create database tables
-Base.metadata.create_all(bind=engine)
-
-# Initialize admin user
-try:
-    from init_db import init_admin
-    init_admin()
-except Exception as e:
-    print(f"Warning: Could not initialize admin user: {e}")
 
 app = FastAPI(
     title="Tire Shop Management API",
@@ -21,15 +12,28 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# CORS middleware - Allow all origins for now
+# CORS middleware - Read from environment
+allowed_origins = settings.ALLOWED_ORIGINS.split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins + ["*"],  # Allow configured origins + wildcard for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Startup event - Create tables
+@app.on_event("startup")
+async def startup_event():
+    print("🚀 Starting up...")
+    print(f"📊 Database URL: {settings.DATABASE_URL[:50]}...")
+    
+    # Create all tables
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("✅ Database tables created successfully")
+    except Exception as e:
+        print(f"⚠️ Error creating tables: {e}")
 
 # Include routers
 app.include_router(auth.router)

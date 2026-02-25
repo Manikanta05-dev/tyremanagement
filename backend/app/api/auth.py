@@ -25,6 +25,15 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Username already registered"
         )
     
+    # Check if email already exists
+    if user_data.email:
+        existing_email = db.query(User).filter(User.email == user_data.email).first()
+        if existing_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+    
     # Truncate password to 72 bytes for bcrypt
     password = user_data.password[:72] if len(user_data.password) > 72 else user_data.password
     
