@@ -38,6 +38,22 @@ def startup_event():
         Purchase, PurchaseItem, PaymentStatus
     )
     
+    # Check if we're in production environment
+    environment = os.getenv("ENVIRONMENT", "development")
+    is_production = environment == "production"
+    
+    # Handle schema migration for production
+    if is_production:
+        print("🔧 Production environment detected - checking for schema updates...")
+        try:
+            # Drop users table if it exists (to handle schema changes)
+            print("🗑️ Dropping users table to apply schema updates...")
+            User.__table__.drop(bind=engine, checkfirst=True)
+            print("✅ Users table dropped successfully")
+        except Exception as e:
+            print(f"⚠️ Could not drop users table: {e}")
+            print("   (This is normal if table doesn't exist yet)")
+    
     # Create all tables
     try:
         print("📝 Creating database tables...")
