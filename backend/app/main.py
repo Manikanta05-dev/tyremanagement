@@ -37,17 +37,9 @@ from fastapi.responses import Response
 async def preflight_handler(full_path: str):
     """
     Handle CORS preflight OPTIONS requests.
-    This ensures browser preflight requests get proper CORS headers.
+    Returns 200 OK and lets CORSMiddleware add the proper headers.
     """
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": "*",  # Will be overridden by CORS middleware
-            "Access-Control-Allow-Methods": "*",
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Allow-Credentials": "true",
-        }
-    )
+    return Response(status_code=200)
 
 # Startup event - Create tables
 @app.on_event("startup")
