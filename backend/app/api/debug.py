@@ -88,9 +88,18 @@ def connection_info():
     """Get database connection information (sanitized)"""
     try:
         from app.core.config import settings
+        import os
+        
+        # Read DATABASE_URL
+        db_url = os.getenv("DATABASE_URL", settings.DATABASE_URL)
+        
+        # Check if SSL is enabled
+        ssl_enabled = False
+        if db_url and db_url.startswith("postgresql://"):
+            if "render.com" in db_url or "dpg-" in db_url:
+                ssl_enabled = True
         
         # Sanitize DATABASE_URL to hide password
-        db_url = settings.DATABASE_URL
         if "@" in db_url:
             # Format: postgresql://user:password@host:port/database
             parts = db_url.split("@")
@@ -101,12 +110,14 @@ def connection_info():
                 "status": "success",
                 "protocol": protocol,
                 "host": host_part,
-                "ssl_enabled": "sslmode=require" in db_url
+                "ssl_enabled": ssl_enabled,
+                "is_render": "render.com" in db_url or "dpg-" in db_url
             }
         else:
             return {
                 "status": "success",
-                "message": "Local database"
+                "message": "Local database",
+                "ssl_enabled": False
             }
             
     except Exception as e:

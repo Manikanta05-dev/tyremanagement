@@ -4,27 +4,36 @@ from sqlalchemy.orm import sessionmaker
 from .config import settings
 import os
 
-# Handle Render PostgreSQL SSL requirement
-database_url = settings.DATABASE_URL
+# Read DATABASE_URL from environment
+DATABASE_URL = os.getenv("DATABASE_URL", settings.DATABASE_URL)
 
-# Add SSL mode for production (Render requires SSL)
-if database_url and database_url.startswith("postgresql://"):
-    # Check if we're on Render (or any production environment)
-    if "render" in database_url or os.getenv("RENDER"):
-        # Add SSL mode if not already present
-        if "sslmode" not in database_url:
-            database_url = database_url + ("&" if "?" in database_url else "?") + "sslmode=require"
-            print("🔒 Added SSL mode to database connection")
+print(f"🔌 Connecting to database: {DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else 'local'}")
 
-print(f"🔌 Connecting to database: {database_url.split('@')[1] if '@' in database_url else 'local'}")
+# Determine if SSL is required (Render PostgreSQL)
+use_ssl = False
+if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
+    # Check if we're on Render (dpg- prefix or render.com in URL)
+    if "render.com" in DATABASE_URL or "dpg-" in DATABASE_URL:
+        use_ssl = True
+        print("🔒 SSL mode enabled for Render PostgreSQL")
 
-# Create engine with SSL support
-engine = create_engine(
-    database_url,
-    pool_pre_ping=True,  # Verify connections before using
-    pool_recycle=300,    # Recycle connections after 5 minutes
-    echo=False,          # Set to True for SQL query logging
-)
+# Create engine with SSL support for production
+if use_ssl:
+    engine = create_engine(
+        DATABASE_URL,
+        connect_args={"sslmode": "require"},
+        pool_pre_ping=True,  # Verify connections before using
+        pool_recycle=300,    # Recycle connections after 5 minutes
+        echo=False,          # Set to True for SQL query logging
+    )
+else:
+    # Local development or SQLite
+    engine = create_engine(
+        DATABASE_URL,
+        pool_pre_ping=True,
+        pool_recycle=300,
+        echo=False,
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
